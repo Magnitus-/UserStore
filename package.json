@@ -1,0 +1,40 @@
+{
+  "name": "user-store",
+  "version": "1.0.0",
+  "description": "Store to authenticate usernames, emails, passwords and group memberships",
+  "keywords": [
+    "authentication",
+    "mongodb"
+  ],
+  "author": "Eric Vallee <eric_vallee2003@yahoo.ca>",
+  "main": "./lib/UserStore.js",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/Magnitus-/UserStore"
+  },
+  "bugs": {
+    "url": "http://github.com/Magnitus-/UserStore/issues",
+    "email": "eric_vallee2003@yahoo.ca"
+  },
+  "licenses": [
+    {
+      "type": "MIT License",
+      "url": "http://mit-license.org/"
+    }
+  ],
+  "dependencies": {
+    "mongodb": "~1.4.19"
+  },
+  "devDependencies": {
+    "nimble": "0.0.2",
+    "nodeunit": "~0.9.0",
+    "bcrypt": "~0.8.0"
+  },
+  "scripts": {
+    "test": "./node_modules/nodeunit/bin/nodeunit test"
+  },
+  "license": "MIT",
+  "directories": {
+    "test": "test"
+  }
+}
