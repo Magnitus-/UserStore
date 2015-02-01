@@ -227,7 +227,21 @@ Store.Add({'Email': 'SomeEmail@email.com', 'Username': 'SomeUser', 'Password': '
 
     if(Err)
     {
-        //Some error occured, handle it. Could be database or Unique/NotNull violation.
+        if(Err.UserStore && Err.UserStore.Name == 'ConstraintError')
+        {
+            if(Err.UserStore.Type == 'NotNull')
+            {
+                //NotNull constraint violation, handle it
+            }
+            else
+            {
+                //Unique constraint violation, handle it
+            }
+        }
+        else
+        {
+            //Some other database error occured
+        }
     }
     else if(Result.length==1)
     {
@@ -237,6 +251,14 @@ Store.Add({'Email': 'SomeEmail@email.com', 'Username': 'SomeUser', 'Password': '
 });
 
 ```
+
+Note: While the NotNull and Unique restrictions will cause an error to be returned if those properties are not respected during insertion, the returned error will have the following properties:
+
+- UserStore.Name: Will have the value 'ConstraintError'.
+
+- UserStore.Type: will have the value 'NotNull' or 'Unique', depending on which constraint was not respected.
+
+Checking for the existence of the 'UserStore' property in the error object with the above values is an easy way to separate constraint-caused errors from system errors.
 
 Get
 ---
@@ -485,3 +507,8 @@ Initial release
 - Removed some dated misleading comments in the code.
 - Completed doc
 - For default hash, changed default KeyLength from 512 to 20 and Iterations from 1000 to 10000.
+
+1.1.0
+-----
+
+Added properties to the error passed to the callback of the 'Add' method if the cause is a restriction (ie, Unique or NotNull) to more easily differentiate those from system errors.
