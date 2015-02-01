@@ -512,3 +512,8 @@ Initial release
 -----
 
 Added properties to the error passed to the callback of the 'Add' method if the cause is a restriction (ie, Unique or NotNull) to more easily differentiate those from system errors.
+
+1.1.1
+-----
+
+Updated mongodb dependency to version 1.4.29.
