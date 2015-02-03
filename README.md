@@ -34,7 +34,7 @@ Overall Concept
 
 This module makes use of MongoDB's shema-free design to be unbiased about what information you store for your users and what information you use to identify them.
 
-Is uses a basic Add/Get/Update/Remove methods to manipulate users. Additionally, AddMembership and RemoverMembership methods are provided to operate on a user's Memberships set in order to abstract away MongoDB's set manipulation.
+Is uses a basic Add/Get/Update/Remove/Count methods to manipulate users. Additionally, AddMembership and RemoverMembership methods are provided to operate on a user's Memberships set in order to abstract away MongoDB's set manipulation.
 
 All its functions take a &lt;User&gt; object as an argument that you can defined with whichever custom fields you want (ex: Username, Email, FistName, LastName, etc).
 
@@ -493,6 +493,42 @@ Store.RemovedMembership({'Email': 'SomeEmail@email.com'}, 'Banned', function(Err
 });
 ```
 
+Count
+-----
+
+Method to count the number of users matching specific criteria. It has the following signature: function(&lt;User&gt;, &lt;Callback&gt;)
+
+&lt;User&gt; is an object that should contain all the criteria that defines users you want to count. If 'Password' is defined, it will not be hashed (leading to 0 result by default). 
+
+This is a pratical consideration as a sane password storage implementation (including the default in this library) will include salted hashing and matching a password again several documents using such a scheme would involve fetching all documents that match the other criteria and then doing a document-by-document comparison for the password using the salt of each document.
+
+Depending on the number of documents that match the other criteria and whether or not the hashing algorithmn is effective against computers matching the specs of your server, this could prove to be an incredibly slow call to make.
+
+&lt;Callback&gt; will have an error as its first argument and the count as the second (if no error was encountered).
+
+Ex:
+
+```javascript
+//Some code
+
+Store.Count({'Country': 'Canada'}, function(Err, Count) {
+    if(Err)
+    {
+        //Some error occured, handle it. Probably the database.
+    }
+    else if(Count>0)
+    {
+        //Some of our users are Canadian
+    }
+    else
+    {
+        //No Canadian users, what a boring web site!
+    }
+
+});
+
+```
+
 Version History
 ===============
 
@@ -517,3 +553,10 @@ Added properties to the error passed to the callback of the 'Add' method if the 
 -----
 
 Updated mongodb dependency to version 1.4.29.
+
+1.2.0
+-----
+
+- Added Count method.
+
+- Updated mongodb dependency to version 1.4.30.

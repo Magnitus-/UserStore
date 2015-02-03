@@ -192,13 +192,25 @@ exports.UserStore = {
         });
     },
     'TestMinimalistic': function(Test) {
-        Test.expect(17);
+        Test.expect(20);
         UserStore(Context['DB'], {}, function(Err, Store) {
             Context['DB'].collection('Users', function(Err, UsersCollection) {
                 Nimble.series([
                 function(Callback) {
+                    Store.Count({'FirstName': 'Fake'}, function(Err, Count) {
+                        Test.ok(Count==0, "Confirming that count returns 0 when no users match the criteria.");
+                        Callback();
+                    });
+                },
+                function(Callback) {
                     Store.Add({'FirstName': 'Fake', 'LastName': 'Name'}, function(Err, Result) {
                         Test.ok(Result.length==1, "Confirming that insertion of first element works.");
+                        Callback();
+                    });
+                },
+                function(Callback) {
+                    Store.Count({'FirstName': 'Fake'}, function(Err, Count) {
+                        Test.ok(Count==1, "Confirming that count works when a user is matched.");
                         Callback();
                     });
                 },
@@ -308,6 +320,14 @@ exports.UserStore = {
                                     Callback();
                                 });
                             });
+                        });
+                    });
+                },
+                function(Callback) {
+                    Store.Add({'FirstName': 'FakeSibling', 'LastName': 'Fake'}, function(Err, Result) {
+                        Store.Count({'LastName': 'Fake'}, function(Err, Count) {
+                            Test.ok(Count==2, "Confirming that count against criteria that match more than 1 user works.");
+                            Callback();
                         });
                     });
                 }], 
