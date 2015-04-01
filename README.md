@@ -558,5 +558,9 @@ Updated mongodb dependency to version 1.4.29.
 -----
 
 - Added Count method.
-
 - Updated mongodb dependency to version 1.4.30.
+
+1.2.1
+-----
+
+Updated mongodb dependency to version 1.4.35.
