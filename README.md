@@ -532,10 +532,33 @@ Store.Count({'Country': 'Canada'}, function(Err, Count) {
 Version History
 ===============
 
-1.0.0
+1.3.0
 -----
 
-Initial release
+- Added properties to the error passed to the callback of the 'Update' method if the cause is a restriction (ie, Unique or NotNull) to more easily differentiate those from system errors.
+- Fixed a bug where user could update fields with non-null constraint to null.
+
+1.2.1
+-----
+
+Updated mongodb dependency to version 1.4.35.
+
+1.2.0
+-----
+
+- Added Count method.
+- Updated mongodb dependency to version 1.4.30.
+
+1.1.1
+-----
+
+Updated mongodb dependency to version 1.4.29.
+
+1.1.0
+-----
+
+Added properties to the error passed to the callback of the 'Add' method if the cause is a restriction (ie, Unique or NotNull) to more easily differentiate those from system errors.
+
 
 1.0.1
 -----
@@ -544,23 +567,7 @@ Initial release
 - Completed doc
 - For default hash, changed default KeyLength from 512 to 20 and Iterations from 1000 to 10000.
 
-1.1.0
+1.0.0
 -----
 
-Added properties to the error passed to the callback of the 'Add' method if the cause is a restriction (ie, Unique or NotNull) to more easily differentiate those from system errors.
-
-1.1.1
------
-
-Updated mongodb dependency to version 1.4.29.
-
-1.2.0
------
-
-- Added Count method.
-- Updated mongodb dependency to version 1.4.30.
-
-1.2.1
------
-
-Updated mongodb dependency to version 1.4.35.
+Initial release

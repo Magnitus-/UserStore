@@ -338,20 +338,20 @@ exports.UserStore = {
         });
     },
     'TestRestrictions': function(Test) {
-        Test.expect(10);
+        Test.expect(16);
         var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}]};
         UserStore(Context['DB'], {'Email': {'Unique': 1, 'NotNull': 1}, 'FirstName': {'NotNull': 1}, 'Username': {'Unique': 1}}, function(Err, Store) {
             Context['DB'].collection('Users', function(Err, UsersCollection) {
                 Nimble.series([
                 function(Callback) {
                     Store.Add({}, function(Err, Result) { 
-                        Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'NotNull', "Confirming null constraint works, case 1.");
+                        Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'NotNull', "Confirming null constraint works with Add, case 1.");
                         Store.Add({'FirstName': 'Fake'}, function(Err, Result) {
-                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'NotNull', "Confirming null constraint works, case 2.");
+                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'NotNull', "Confirming null constraint works with Add, case 2.");
                             Store.Add({'Email': 'Fake@email.com'}, function(Err, Result) {
-                                Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'NotNull', "Confirming null constraint works, case 3.");
+                                Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'NotNull', "Confirming null constraint works with Add, case 3.");
                                 Store.Add({'FirstName': 'Fake', 'Email': 'Fake@email.com'}, function(Err, Result) {
-                                    Test.ok((!Err)&&Result&&(Result.length==1), "Confirming null constraint works, case 4.");
+                                    Test.ok((!Err)&&Result&&(Result.length==1), "Confirming null constraint works with Add, case 4.");
                                     Callback();
                                 });
                             });
@@ -360,20 +360,48 @@ exports.UserStore = {
                 },
                 function(Callback) {
                     Store.Add({'FirstName': 'Fake2', 'Email': 'Fake@email.com'}, function(Err, Result) {
-                        Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works, case 1.");
+                        Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works with Add, case 1.");
                         Store.Add({'FirstName': 'Fake', 'Email': 'Fake2@email.com'}, function(Err, Result) {
-                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works, case 2.");
+                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works with Add, case 2.");
                             Store.Add({'FirstName': 'Fake', 'Email': 'Fake2@email.com', 'LastName': null}, function(Err, Result) {
-                                Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works, case 3.");
+                                Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works with Add, case 3.");
                                 Store.Add({'FirstName': 'Fake', 'Email': 'Fake2@email.com', 'LastName': 'Fake'}, function(Err, Result) {
-                                    Test.ok((!Err)&&Result&&(Result.length==1), "Confirming null constraint works, case 4.");
+                                    Test.ok((!Err)&&Result&&(Result.length==1), "Confirming null constraint works with Add, case 4.");
                                     Store.Add({'FirstName': 'Fake2', 'Email': 'Fake3@email.com', 'LastName': 'Fake2', 'Username': 'Fake'}, function(Err, Result) {
-                                        Test.ok((!Err)&&Result&&(Result.length==1), "Confirming null constraint works, case 5.");
+                                        Test.ok((!Err)&&Result&&(Result.length==1), "Confirming null constraint works with Add, case 5.");
                                         Store.Add({'FirstName': 'Fake3', 'Email': 'Fake4@email.com', 'LastName': 'Fake3', 'Username': 'Fake'}, function(Err, Result) {
-                                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works, case 6.");
+                                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works with Add, case 6.");
                                             Callback();
                                         });
                                     });
+                                });
+                            });
+                        });
+                    });
+                },
+                //Profiles:
+                //'FirstName': 'Fake', 'Email': 'Fake@email.com'
+                //'FirstName': 'Fake', 'Email': 'Fake2@email.com', 'LastName': 'Fake'
+                //'FirstName': 'Fake2', 'Email': 'Fake3@email.com', 'LastName': 'Fake2', 'Username': 'Fake'
+                function(Callback) {
+                    Store.Update({'Email': 'Fake@email.com'}, {'Email': null}, function(Err, Result) {
+                        Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'NotNull', "Confirming null constraint works with Update, case 1.");
+                        Store.Update({'Email': 'Fake@email.com'}, {'Email': undefined}, function(Err, Result) {
+                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'NotNull', "Confirming null constraint works with Update, case 2.");
+                            Callback();
+                        });
+                    });
+                },
+                function(Callback) {
+                    Store.Update({'Email': 'Fake@email.com'}, {'Email': 'Fake2@email.com'}, function(Err, Result) {
+                        Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming null constraint works with Update, case 1.");
+                        Store.Update({'Email': 'Fake@email.com'}, {'Username': 'Fake'}, function(Err, Result) {
+                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming null constraint works with Update, case 2.");
+                            Store.Update({'Email': 'Fake2@email.com'}, {'FirstName': 'Fake2'}, function(Err, Result) {
+                                Test.ok(!Err, "Confirming null constraint works with Update, case 3.");
+                                Store.Update({'Email': 'Fake2@email.com'}, {'LastName': 'Fake2'}, function(Err, Result) {
+                                    Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming null constraint works with Update, case 4.");
+                                    Callback();
                                 });
                             });
                         });
