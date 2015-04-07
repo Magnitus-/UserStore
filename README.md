@@ -532,6 +532,13 @@ Store.Count({'Country': 'Canada'}, function(Err, Count) {
 Version History
 ===============
 
+2.0.0
+-----
+
+- Added user-properties as a dependency to this project
+- Replaced the Restrictions parameter by a user-properties instance
+- Replaced default hashing of 'Password' field by hashing of fields returned by the ListHashable method of user-properties
+
 1.3.0
 -----
 

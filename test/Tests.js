@@ -5,6 +5,7 @@ var MongoDB = require('mongodb');
 var UserStore = require('../lib/UserStore');
 var Bcrypt = require('bcrypt');
 var Nimble = require('nimble');
+var UserProperties = require('user-properties');
 
 var Context = {};
 var RandomIdentifier = 'UserStoreTestDB'+Math.random().toString(36).slice(-8);
@@ -193,7 +194,7 @@ exports.UserStore = {
     },
     'TestMinimalistic': function(Test) {
         Test.expect(20);
-        UserStore(Context['DB'], {}, function(Err, Store) {
+        UserStore(Context['DB'], UserProperties(), function(Err, Store) {
             Context['DB'].collection('Users', function(Err, UsersCollection) {
                 Nimble.series([
                 function(Callback) {
@@ -340,7 +341,10 @@ exports.UserStore = {
     'TestRestrictions': function(Test) {
         Test.expect(16);
         var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}]};
-        UserStore(Context['DB'], {'Email': {'Unique': 1, 'NotNull': 1}, 'FirstName': {'NotNull': 1}, 'Username': {'Unique': 1}}, function(Err, Store) {
+        var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
+                                         'FirstName': {'Required': true},
+                                         'Username': {'Unique': true}});
+        UserStore(Context['DB'], UserSchema, function(Err, Store) {
             Context['DB'].collection('Users', function(Err, UsersCollection) {
                 Nimble.series([
                 function(Callback) {
@@ -415,15 +419,21 @@ exports.UserStore = {
     },
     'TestPasswords': function(Test) {
         Test.expect(8);
+        var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
+                                         'FirstName': {'Required': true},
+                                         'Username': {'Unique': true}});
         var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}]};
-        UserStore(Context['DB'], {'Email': {'Unique': 1, 'NotNull': 1}, 'FirstName': {'NotNull': 1}, 'Username': {'Unique': 1}}, function(Err, Store) {
+        UserStore(Context['DB'], UserSchema, function(Err, Store) {
             TestPassword(Test, Store);
         }, StoreOptions);
     },
     'TestCustomHash': function(Test) {
         Test.expect(8);
+        var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
+                                         'FirstName': {'Required': true},
+                                         'Username': {'Unique': true}});
         var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}], 'Hash': BcryptHash, 'Verify': BcryptVerify};
-        UserStore(Context['DB'], {'Email': {'Unique': 1, 'NotNull': 1}, 'FirstName': {'NotNull': 1}, 'Username': {'Unique': 1}}, function(Err, Store) {
+        UserStore(Context['DB'], UserSchema, function(Err, Store) {
             TestPassword(Test, Store);
         }, StoreOptions);
     }
