@@ -421,7 +421,8 @@ exports.UserStore = {
         Test.expect(8);
         var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
                                          'FirstName': {'Required': true},
-                                         'Username': {'Unique': true}});
+                                         'Username': {'Unique': true},
+                                         'Password': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret}});
         var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}]};
         UserStore(Context['DB'], UserSchema, function(Err, Store) {
             TestPassword(Test, Store);
@@ -431,11 +432,16 @@ exports.UserStore = {
         Test.expect(8);
         var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
                                          'FirstName': {'Required': true},
-                                         'Username': {'Unique': true}});
+                                         'Username': {'Unique': true},
+                                         'Password': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret}});
         var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}], 'Hash': BcryptHash, 'Verify': BcryptVerify};
         UserStore(Context['DB'], UserSchema, function(Err, Store) {
             TestPassword(Test, Store);
         }, StoreOptions);
+    },
+    'TestMultipleHash': function(Test) {
+        Test.expect(0);
+        Test.done();
     }
 };
 

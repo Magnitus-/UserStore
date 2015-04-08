@@ -538,6 +538,7 @@ Version History
 - Added user-properties as a dependency to this project
 - Replaced the Restrictions parameter by a user-properties instance
 - Replaced default hashing of 'Password' field by hashing of fields returned by the ListHashable method of user-properties
+- Added HashOnly option to constructor
 
 1.3.0
 -----
