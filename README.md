@@ -5,6 +5,13 @@ Generic storage for user accounts that is meant to be flexible and provide a min
 
 It has barebone optional built-in facilities to handle password authentication and roles.
 
+To Do For Version 2.0.0
+=======================
+
+- Include tests for multiple hashable field
+- Add hash verification for Memberships Method
+- Update doc with latest changes
+
 Requirements
 ============
 
