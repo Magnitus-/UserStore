@@ -143,21 +143,21 @@ function TestPassword(Test, Store)
 {
     Store.Add({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain'}, function(Err, Result) {
         Store.Get({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': ''}, function(Err, Result) {
-            Test.ok((!Err)&&Result==null, "Confirming that empty password is no match for get");
+            Test.ok((!Err)&&Result===null, "Confirming that empty password is no match for get");
             Store.Get({'FirstName': 'NonExistent', 'LastName': 'NonExistent', 'Email': 'NonExistent', 'Password': 'NonExistent'}, function(Err, Result) {
-                Test.ok((!Err)&&Result==null, "Confirming that non-existent users are still handled properly with passwords");
+                Test.ok((!Err)&&Result===null, "Confirming that non-existent users are still handled properly with passwords");
                 Store.Remove({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'Wrong'}, function(Err, Result) {
-                    Test.ok(Result==0, "Confirming that removes are not executed with the wrong password");
+                    Test.ok(Result===0, "Confirming that removes are not executed with the wrong password");
                     Store.Update({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'WrongToo'}, {'SomeField': 'Hello world!'}, function(Err, Result) {
-                        Test.ok(Result==0, "Confirming that updates are not executed with the wrong password");
+                        Test.ok(Result===0, "Confirming that updates are not executed with the wrong password");
                         Store.Get({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'FakeAgain'}, function(Err, Result) {
                             Test.ok(Result, "Confirming that Get with the right password works.");
                             Store.Update({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'FakeAgain'}, {'Password': 'FakeAgain2'}, function(Err, Result) {
-                                Test.ok(Result==1, "Confirming that updates are executed with the right password");
+                                Test.ok(Result===1, "Confirming that updates are executed with the right password");
                                 Store.Get({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'FakeAgain2'}, function(Err, Result) {
                                     Test.ok(Result, "Confirming that updating password works.");
                                     Store.Remove({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'FakeAgain2'}, function(Err, Result) {
-                                        Test.ok(Result==1, "Confirming that removing with the right password works.");
+                                        Test.ok(Result===1, "Confirming that removing with the right password works.");
                                         Test.done();
                                     });
                                 });
@@ -172,8 +172,17 @@ function TestPassword(Test, Store)
 
 function TestMultipleHash(Test, Store)
 {
-    Store.Add({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain', 'EmailToken': 'MyToken'}, function(Err, Result) {
-        Test.done();
+    Store.Add({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain', 'EmailToken': 'Token!'}, function(Err, Result) {
+        Store.Get({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'Wrong', 'EmailToken': 'Wrong'}, function(Err, Result) {
+            Test.ok((!Err)&&Result===null, "Confirming that Get doesn't match if all hashed fields are wrong.");
+            Store.Get({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'FakeAgain', 'EmailToken': 'Wrong'}, function(Err, Result) {
+                Test.ok((!Err)&&Result===null, "Confirming that Get doesn't match if some hashed fields are wrong.");
+                Store.Get({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain', 'EmailToken': 'Token!'}, function(Err, Result) {
+                    Test.ok(Result, "Confirming that Get with all the right hashed fields work.");
+                    Test.done();
+                })
+            });
+        });
     });
 }
 
@@ -447,7 +456,7 @@ exports.UserStore = {
         }, StoreOptions);
     },
     'TestMultipleHash': function(Test) {
-        Test.expect(0);
+        Test.expect(3);
         var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
                                          'FirstName': {'Required': true},
                                          'Username': {'Unique': true},
