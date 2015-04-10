@@ -547,6 +547,7 @@ Version History
 - Replaced default hashing of 'Password' field by hashing of fields returned by the ListHashable method of user-properties
 - Added HashOnly option to constructor
 - Added hash verification for Memberships methods
+- Bit of refactoring
 
 1.3.0
 -----

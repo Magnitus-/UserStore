@@ -156,9 +156,21 @@ function TestPassword(Test, Store)
                                 Test.ok(Result===1, "Confirming that updates are executed with the right password");
                                 Store.Get({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'FakeAgain2'}, function(Err, Result) {
                                     Test.ok(Result, "Confirming that updating password works.");
-                                    Store.Remove({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'FakeAgain2'}, function(Err, Result) {
-                                        Test.ok(Result===1, "Confirming that removing with the right password works.");
-                                        Test.done();
+                                    Store.AddMembership({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'Wrong'}, 'Banned', function(Err, Result) {
+                                        Test.ok(Result===0, "Confirming that memberships are not added with wrong password");
+                                        Store.AddMembership({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'FakeAgain2'}, 'Banned', function(Err, Result) {
+                                            Test.ok(Result===1, "Confirming that memberships are added with right password");
+                                            Store.RemoveMembership({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'Wrong'}, 'Banned', function(Err, Result) {
+                                                Test.ok(Result===0, "Confirming that memberships are not removed with wrong password");
+                                                Store.RemoveMembership({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'FakeAgain2'}, 'Banned', function(Err, Result) {
+                                                    Test.ok(Result===1, "Confirming that memberships are removed with right password");
+                                                    Store.Remove({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Password': 'FakeAgain2'}, function(Err, Result) {
+                                                        Test.ok(Result===1, "Confirming that removing with the right password works.");
+                                                        Test.done();
+                                                    });
+                                                });
+                                            });
+                                        });
                                     });
                                 });
                             })
@@ -189,9 +201,11 @@ function TestMultipleHash(Test, Store)
                                     Test.ok(Result===0, "Confirming that Remove doesn't match if all hashed fields are wrong");
                                     Store.Remove({'FirstName': 'Ni!', 'LastName': 'FakeToo', 'Password': 'FakeAgain', 'EmailToken': 'Wrong'}, function(Err, Result) {
                                         Test.ok(Result===0, "Confirming that Remove doesn't match if some hashed fields are wrong");
-                                        Store.Remove({'FirstName': 'Ni!', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain', 'EmailToken': 'Token!'}, function(Err, Result) {
-                                            Test.ok(Result===1, "Confirming that Remove matches if all hashed fields are right");
-                                            Test.done();
+                                        Store.Update({'FirstName': 'Ni!', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain', 'EmailToken': 'Token!'}, {'Password': 'FakeAgain2', 'EmailToken': 'Token!2'}, function(Err, Result) {
+                                            Store.Remove({'FirstName': 'Ni!', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain2', 'EmailToken': 'Token!2'}, function(Err, Result) {
+                                                Test.ok(Result===1, "Confirming that Remove matches if all hashed fields are right and that updating hashed fields work.");
+                                                Test.done();
+                                            });
                                         });
                                     });
                                 });
@@ -452,7 +466,7 @@ exports.UserStore = {
         }, StoreOptions);
     },
     'TestPasswords': function(Test) {
-        Test.expect(8);
+        Test.expect(12);
         var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
                                          'FirstName': {'Required': true},
                                          'Username': {'Unique': true},
@@ -463,7 +477,7 @@ exports.UserStore = {
         }, StoreOptions);
     },
     'TestCustomHash': function(Test) {
-        Test.expect(8);
+        Test.expect(12);
         var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
                                          'FirstName': {'Required': true},
                                          'Username': {'Unique': true},
@@ -486,7 +500,7 @@ exports.UserStore = {
         }, StoreOptions);
     },
     'TestMultipleUseOneHash': function(Test) {
-        Test.expect(8);
+        Test.expect(12);
         var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
                                          'FirstName': {'Required': true},
                                          'Username': {'Unique': true},
