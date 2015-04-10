@@ -179,7 +179,25 @@ function TestMultipleHash(Test, Store)
                 Test.ok((!Err)&&Result===null, "Confirming that Get doesn't match if some hashed fields are wrong.");
                 Store.Get({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain', 'EmailToken': 'Token!'}, function(Err, Result) {
                     Test.ok(Result, "Confirming that Get with all the right hashed fields work.");
-                    Test.done();
+                    Store.Update({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'Wrong', 'EmailToken': 'Wrong'}, {'FirstName': 'Ni!'}, function(Err, Result) {
+                        Test.ok(Result===0, "Confirming that Update doesn't match if all hashed fields are wrong");    
+                        Store.Update({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'Wrong', 'EmailToken': 'Token!'}, {'FirstName': 'Ni!'}, function(Err, Result) {
+                            Test.ok(Result===0, "Confirming that Update doesn't match if some hashed fields are wrong"); 
+                            Store.Update({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain', 'EmailToken': 'Token!'}, {'FirstName': 'Ni!'}, function(Err, Result) {
+                                Test.ok(Result===1, "Confirming that Update matches if all hashed fields are right");
+                                Store.Remove({'FirstName': 'Ni!', 'LastName': 'FakeToo', 'Password': 'Wrong', 'EmailToken': 'Wrong'}, function(Err, Result) {
+                                    Test.ok(Result===0, "Confirming that Remove doesn't match if all hashed fields are wrong");
+                                    Store.Remove({'FirstName': 'Ni!', 'LastName': 'FakeToo', 'Password': 'FakeAgain', 'EmailToken': 'Wrong'}, function(Err, Result) {
+                                        Test.ok(Result===0, "Confirming that Remove doesn't match if some hashed fields are wrong");
+                                        Store.Remove({'FirstName': 'Ni!', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain', 'EmailToken': 'Token!'}, function(Err, Result) {
+                                            Test.ok(Result===1, "Confirming that Remove matches if all hashed fields are right");
+                                            Test.done();
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
                 })
             });
         });
@@ -456,7 +474,7 @@ exports.UserStore = {
         }, StoreOptions);
     },
     'TestMultipleHash': function(Test) {
-        Test.expect(3);
+        Test.expect(9);
         var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
                                          'FirstName': {'Required': true},
                                          'Username': {'Unique': true},
@@ -467,9 +485,34 @@ exports.UserStore = {
             TestMultipleHash(Test, Store);
         }, StoreOptions);
     },
+    'TestMultipleUseOneHash': function(Test) {
+        Test.expect(8);
+        var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
+                                         'FirstName': {'Required': true},
+                                         'Username': {'Unique': true},
+                                         'Password': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret},
+                                         'EmailToken': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret}});
+        var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}], 'Hash': BcryptHash, 'Verify': BcryptVerify};
+        UserStore(Context['DB'], UserSchema, function(Err, Store) {
+            TestPassword(Test, Store);
+        }, StoreOptions);
+    },
     'TestHashOnly': function(Test) {
-        Test.expect(0);
-        Test.done();
+        Test.expect(1);
+        var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
+                                         'FirstName': {'Required': true},
+                                         'Username': {'Unique': true},
+                                         'Password': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret},
+                                         'EmailToken': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret}});
+        var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}], 'HashOnly': ['Password']};
+        UserStore(Context['DB'], UserSchema, function(Err, Store) {
+            Store.Add({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain', 'EmailToken': 'Token!'}, function(Err, Result) {
+                Store.Get({'FirstName': 'Fake'}, function(Err, User) {
+                    Test.ok(User.EmailToken === 'Token!' && 'Password' !== 'FakeAgain', "Confirming that only the password is hashed");
+                    Test.done();
+                });
+            });
+        }, StoreOptions);
     }
 };
 
