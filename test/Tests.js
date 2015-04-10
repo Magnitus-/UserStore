@@ -170,6 +170,13 @@ function TestPassword(Test, Store)
     });
 }
 
+function TestMultipleHash(Test, Store)
+{
+    Store.Add({'FirstName': 'Fake', 'LastName': 'FakeToo', 'Email': 'Fake@email.com', 'Password': 'FakeAgain', 'EmailToken': 'MyToken'}, function(Err, Result) {
+        Test.done();
+    });
+}
+
 exports.UserStore = {
     'setUp': function(Callback) {
         MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {native_parser:true}, function(Err, DB) {
@@ -440,6 +447,18 @@ exports.UserStore = {
         }, StoreOptions);
     },
     'TestMultipleHash': function(Test) {
+        Test.expect(0);
+        var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
+                                         'FirstName': {'Required': true},
+                                         'Username': {'Unique': true},
+                                         'Password': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret},
+                                         'EmailToken': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret}});
+        var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}]};
+        UserStore(Context['DB'], UserSchema, function(Err, Store) {
+            TestMultipleHash(Test, Store);
+        }, StoreOptions);
+    },
+    'TestHashOnly': function(Test) {
         Test.expect(0);
         Test.done();
     }
