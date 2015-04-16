@@ -560,6 +560,11 @@ Store.Count({'Country': 'Canada'}, function(Err, Count) {
 Version History
 ===============
 
+2.0.1
+-----
+
+- Removed dangling nimble module request in library
+
 2.0.0
 -----
 
