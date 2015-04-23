@@ -1,6 +1,6 @@
 {
   "name": "user-store",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Store to authenticate usernames, emails, passwords and group memberships",
   "keywords": [
     "authentication",
@@ -24,7 +24,7 @@
   ],
   "dependencies": {
     "mongodb": "^1.4.35",
-    "user-properties": "^3.1.0"
+    "user-properties": "^3.2.0"
   },
   "devDependencies": {
     "nimble": "0.0.2",

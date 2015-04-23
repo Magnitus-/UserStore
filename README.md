@@ -560,6 +560,11 @@ Store.Count({'Country': 'Canada'}, function(Err, Count) {
 Version History
 ===============
 
+2.0.2
+-----
+
+- Updated version of user-properties dependency
+
 2.0.1
 -----
 
