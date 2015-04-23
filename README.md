@@ -560,15 +560,20 @@ Store.Count({'Country': 'Canada'}, function(Err, Count) {
 Version History
 ===============
 
+2.0.3
+-----
+
+Change user-properties depedency to include the right range of supported versions.
+
 2.0.2
 -----
 
-- Updated version of user-properties dependency
+Updated version of user-properties dependency
 
 2.0.1
 -----
 
-- Removed dangling nimble module request in library
+Removed dangling nimble module request in library
 
 2.0.0
 -----
