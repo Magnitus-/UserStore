@@ -247,38 +247,38 @@ exports.UserStore = {
                 Nimble.series([
                 function(Callback) {
                     Store.Count({'FirstName': 'Fake'}, function(Err, Count) {
-                        Test.ok(Count==0, "Confirming that count returns 0 when no users match the criteria.");
+                        Test.ok(Count===0, "Confirming that count returns 0 when no users match the criteria.");
                         Callback();
                     });
                 },
                 function(Callback) {
                     Store.Add({'FirstName': 'Fake', 'LastName': 'Name'}, function(Err, Result) {
-                        Test.ok(Result.length==1, "Confirming that insertion of first element works.");
+                        Test.ok(Result.length===1, "Confirming that insertion of first element works.");
                         Callback();
                     });
                 },
                 function(Callback) {
                     Store.Count({'FirstName': 'Fake'}, function(Err, Count) {
-                        Test.ok(Count==1, "Confirming that count works when a user is matched.");
+                        Test.ok(Count===1, "Confirming that count works when a user is matched.");
                         Callback();
                     });
                 },
                 function(Callback) {
                     Store.Get({'FirstName': 'Fake', 'LastName': 'Name'}, function(Err, Result) {
-                        Test.ok(Result['FirstName']=='Fake' && Result['LastName']=='Name', "Confirming that get on first element works.");
+                        Test.ok(Result['FirstName']==='Fake' && Result['LastName']==='Name', "Confirming that get on first element works.");
                         Callback();
                     });
                 },
                 function(Callback) {
                     Store.Add({'FirstName': 'Fake2', 'LastName': 'Name2'}, function(Err, Result) {
-                        Test.ok(Result.length==1, "Confirming that insertion of subsequent elements works.");
+                        Test.ok(Result.length===1, "Confirming that insertion of subsequent elements works.");
                         Callback();
                     });
 
                 },
                 function(Callback) {
                     Store.Get({'FirstName': 'Fake2'}, function(Err, Result) {
-                        Test.ok(Result['FirstName']=='Fake2' && Result['LastName']=='Name2', "Confirming that get on subsequent elements works.");
+                        Test.ok(Result['FirstName']==='Fake2' && Result['LastName']==='Name2', "Confirming that get on subsequent elements works.");
                         Callback();
                     });
                 },
@@ -292,7 +292,7 @@ exports.UserStore = {
                     Store.Remove({'FirstName': 'NonExistent'}, function(Err, RemovedAmount) {
                         Store.Get({'FirstName': 'Fake', 'LastName': 'Name'}, function(Err, Result1) {
                             Store.Get({'FirstName': 'Fake2', 'LastName': 'Name2'}, function(Err, Result2) {
-                                Test.ok(RemovedAmount==0&&Result1&&Result2, "Confirming that removing non-existent users doesn't remove any.");
+                                Test.ok(RemovedAmount===0&&Result1&&Result2, "Confirming that removing non-existent users doesn't remove any.");
                                 Callback();
                             });
                         });
@@ -301,7 +301,7 @@ exports.UserStore = {
                 function(Callback) {
                     Store.Remove({'FirstName': 'Fake'}, function(Err, RemovedAmount) {
                         Store.Get({'FirstName': 'Fake', 'LastName': 'Name'}, function(Err, Result) {
-                            Test.ok(RemovedAmount==1&&Result===null, "Confirming that removing an element works.");
+                            Test.ok(RemovedAmount===1&&Result===null, "Confirming that removing an element works.");
                             Callback();
                         });
                     });
@@ -309,7 +309,7 @@ exports.UserStore = {
                 function(Callback) {
                     Store.Remove({'FirstName': 'Fake2'}, function(Err, RemovedAmount) {
                         Store.Get({'FirstName': 'Fake2', 'LastName': 'Name2'}, function(Err, Result) {
-                            Test.ok(RemovedAmount==1&&Result===null, "Confirming that removing last element works.");
+                            Test.ok(RemovedAmount===1&&Result===null, "Confirming that removing last element works.");
                             Callback();
                         });
                     });
@@ -317,7 +317,7 @@ exports.UserStore = {
                 function(Callback) {
                     Store.Add({'FirstName': 'Fake', 'LastName': 'Name'}, function(Err, Result) {
                         Store.Update({'FirstName': 'Fake'}, {'LastName': 'Fake', 'Email': 'FakeToo'}, function(Err, Result) {
-                            Test.ok(Result==1, "Confirming that update took place.");
+                            Test.ok(Result===1, "Confirming that update took place.");
                             Store.Get({'FirstName': 'Fake', 'LastName': 'Fake', 'Email': 'FakeToo'}, function(Err, Result) {
                                 Test.ok(Result, "Confirming that the right fields got updated.");
                                 Callback();
@@ -327,14 +327,14 @@ exports.UserStore = {
                 },
                 function(Callback) {
                     Store.Get({'FirstName': 'Fake', 'LastName': 'Fake', 'Email': 'FakeToo'}, function(Err, Result) {
-                        Test.ok(Result['Memberships'] && Result['Memberships'].length==0, "Confirming that membership array is created by default");
+                        Test.ok(Result['Memberships'] && Result['Memberships'].length===0, "Confirming that membership array is created by default");
                         Store.AddMembership({'FirstName': 'Fake', 'LastName': 'Fake'}, 'Suspended', function(Err, Result) {
-                            Test.ok(Result==1, "Confirming that update took place.");
+                            Test.ok(Result===1, "Confirming that update took place.");
                             Store.Get({'FirstName': 'Fake', 'LastName': 'Fake', 'Email': 'FakeToo'}, function(Err, Result) {
-                                Test.ok(Result['Memberships'][0]=='Suspended', "Confirming that the right fields got updated.");
+                                Test.ok(Result['Memberships'][0]==='Suspended', "Confirming that the right fields got updated.");
                                 Store.AddMembership({'FirstName': 'Fake', 'LastName': 'Fake'}, 'Suspended', function(Err, Result) {
                                     Store.Get({'FirstName': 'Fake', 'LastName': 'Fake', 'Email': 'FakeToo'}, function(Err, Result) {
-                                        Test.ok(Result['Memberships'].length==1 && Result['Memberships'][0]=='Suspended', "Confirming that membership array works as a set.");
+                                        Test.ok(Result['Memberships'].length===1 && Result['Memberships'][0]==='Suspended', "Confirming that membership array works as a set.");
                                         Store.AddMembership({'FirstName': 'Fake', 'LastName': 'Fake'}, 'Banned', function(Err, Result) {
                                             Store.Get({'FirstName': 'Fake', 'LastName': 'Fake', 'Email': 'FakeToo'}, function(Err, Result) {
                                                 var HasSuspended = Result.Memberships.some(function(Item, Index, List) {
@@ -343,7 +343,7 @@ exports.UserStore = {
                                                 var HasBanned = Result.Memberships.some(function(Item, Index, List) {
                                                     return Item == 'Banned';
                                                 });
-                                                Test.ok(Result['Memberships'].length==2&&HasSuspended&&HasBanned, "Confirming that adding more memberships works.");
+                                                Test.ok(Result['Memberships'].length===2&&HasSuspended&&HasBanned, "Confirming that adding more memberships works.");
                                                 Callback();
                                             });
                                         });
@@ -530,10 +530,173 @@ exports.UserStore = {
     }
 };
 
-exports.Error = {
-};
+if(process.env['USER'] && process.env['USER']==='root')
+{
+    
+    //http://stackoverflow.com/questions/26743770/simulating-failure-to-access-mongodb/26750101#26750101
+    function SleepMongoDB(DB, Callback)
+    {
+        DB.command({'serverStatus': 1}, function(Err, Result) {
+            Context['PID'] = Result.pid;
+            process.kill(Context.PID, 'SIGSTOP');
+            Callback();
+        });
+    }
+    
+    function TestSleep(Test, Callback)
+    {
+        Test.expect(1);
+        var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
+                                         'FirstName': {'Required': true},
+                                         'Username': {'Unique': true},
+                                         'Password': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret}});
+        var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}], 'HashOnly': ['Password']};
+        UserStore(Context['DB'], UserSchema, function(Err, Store) {
+            Store.Add({'Email': 'ma@ma.ma', 'FirstName': 'Fake', 'LastName': 'Fake', 'Username': 'Fake', 'Password': 'Qwerty!'}, function(Err, Result) {
+                SleepMongoDB(Context['DB'], function() {
+                    Callback(Store);
+                });
+            });
+        });
+    }
+    
+    exports.NonResponsiveHandling = {
+        'setUp': function(Callback) {
+            MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {'db': {native_parser:true}, 'server': {'socketOptions': {'connectTimeoutMS': 50, 'socketTimeoutMS': 50}}}, function(Err, DB) {
+                Context['DB'] = DB;
+                Callback();
+            });
+        },
+        'tearDown': function(Callback) {
+            if(Context.PID)
+            {
+                process.kill(Context.PID, 'SIGCONT');
+                Context.DB.close();
+                //Setting socketTimeoutMS > 0 is not recommended in production without addtional re-connection logic as it will close the connection when it times out and will also trigger closure if it is iddle (ie, not making any requests) for the given duration
+                //It works well for these tests as there isn't much of a delay between requests or a need to make additional requests with the same DB handle after failure
+                MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {'server': {'socketOptions': {'connectTimeoutMS': 50, 'socketTimeoutMS': 50}}}, function(Err, DB) {
+                    DB.dropDatabase(function(Err, Result) {
+                        if(Err)
+                        {
+                            console.log(Err);
+                        }
+                        DB.close();
+                        Context['DB'] = null;
+                        Context['PID'] = null
+                        Callback();
+                    });
+                });
+            }
+            else
+            {
+                Context.DB.dropDatabase(function(Err, Result) {
+                    if(Err)
+                    {
+                        console.log(Err);
+                    }
+                    Context.DB.close();
+                    Context['DB'] = null;
+                    Context['PID'] = null
+                    Callback();
+                });
+            }
+        },
+        'Constructor': function(Test) {
+            Test.expect(1);
+            var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
+                                             'FirstName': {'Required': true},
+                                             'Username': {'Unique': true},
+                                             'Password': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret}});
+            var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}], 'HashOnly': ['Password']};
+            SleepMongoDB(Context['DB'], function() {
+                UserStore(Context['DB'], UserSchema, function(Err, Store) {
+                    Test.ok(Err, "Confirming that constructor handles socket timeout properly");
+                    Test.done();
+                });
+            });
+        },
+        'Add': function(Test) {
+            Test.expect(1);
+            var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
+                                             'FirstName': {'Required': true},
+                                             'Username': {'Unique': true},
+                                             'Password': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret}});
+            var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}], 'HashOnly': ['Password']};
+            UserStore(Context['DB'], UserSchema, function(Err, Store) {
+                SleepMongoDB(Context['DB'], function() {
+                    Store.Add({'Email': 'ma@ma.ma', 'FirstName': 'Fake', 'LastName': 'Fake', 'Username': 'Fake', 'Password': 'Qwerty!'}, function(Err, Result) {
+                        Test.ok(Err, "Confirming that Add method handles socket timeout properly");
+                        Test.done();
+                    });
+                });
+            });
+        },
+        'Remove': function(Test) {
+            TestSleep(Test, function(Store) {
+                Store.Remove({'Email': 'ma@ma.ma'}, function(Err, Result) {
+                    Test.ok(Err, "Confirming that Remove method handles socket timeout properly");
+                    Test.done();
+                });
+            });
+        },
+        'Update': function(Test) {
+            TestSleep(Test, function(Store) {
+                Store.Update({'Email': 'ma@ma.ma'}, {'Username': 'Fake2'}, function(Err, Result) {
+                    Test.ok(Err, "Confirming that Update method handles socket timeout properly");
+                    Test.done();
+                });
+            });
+        },
+        'Get': function(Test) {
+            TestSleep(Test, function(Store) {
+                Store.Get({'Email': 'ma@ma.ma'}, function(Err, Result) {
+                    Test.ok(Err, "Confirming that Get method handles socket timeout properly");
+                    Test.done();
+                });
+            });
+        },
+        'AddMembership': function(Test) {
+            TestSleep(Test, function(Store) {
+                Store.AddMembership({'Email': 'ma@ma.ma'}, 'Ah!', function(Err, Result) {
+                    Test.ok(Err, "Confirming that AddMembership method handles socket timeout properly");
+                    Test.done();
+                });
+            });
+        },
+        'RemoveMembership': function(Test) {
+            TestSleep(Test, function(Store) {
+                Store.RemoveMembership({'Email': 'ma@ma.ma'}, 'Ah!', function(Err, Result) {
+                    Test.ok(Err, "Confirming that AddMembership method handles socket timeout properly");
+                    Test.done();
+                });
+            });
+        },
+        'Count': function(Test) {
+            TestSleep(Test, function(Store) {
+                Store.Count({'Email': 'ma@ma.ma'}, function(Err, Result) {
+                    Test.ok(Err, "Confirming that Count method handles socket timeout properly");
+                    Test.done();
+                });
+            });
+        }
+    };
+    
+    /*MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {'server': {'socketOptions': {'connectTimeoutMS': 50, 'socketTimeoutMS': 50}}}, function(Err, DB) {
+        DB.command({'buildInfo': 1}, function(Err, Result) {
+            var VersionArray = Result.versionArray;
+            DB.dropDatabase(function(Err, Result) {
+                DB.close();
+                if(VersionArray[0]>2 || (VersionArray[0]===2 && VersionArray[1]>=6))
+                {
+                    
+                }
+            });
+        });
+    });*/
+}
 
 process.on('uncaughtException', function(MainErr) {
+    console.log('eh');
     if(Context.DB)
     {
         Context.DB.dropDatabase(function(Err, Result) {

@@ -29,6 +29,8 @@ In the directory where the module is located, run the following 2 commands on th
 - npm install
 - npm test
 
+If you run the tests with superuser privileges, tests for connection failure will also run (in Linux). Note that those tests will render your MongoDB process unresponsive at various points during the tests.
+
 Overall Concept
 ===============
 
@@ -559,6 +561,11 @@ Store.Count({'Country': 'Canada'}, function(Err, Count) {
 
 Version History
 ===============
+
+2.0.4
+-----
+
+Added tests for error handling when connection is terminated.
 
 2.0.3
 -----
