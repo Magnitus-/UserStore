@@ -559,8 +559,76 @@ Store.Count({'Country': 'Canada'}, function(Err, Count) {
 
 ```
 
+UpdateAtomic
+------------
+
+This method is similar to the 'Update' method, but also allows the caller to either add or remove multiple groups to the user's Memberships property.
+
+Both actions are done in one atomic operation.
+
+It has the following signature: function(&lt;User&gt;, &lt;Updates&gt;, &lt;Memberships&gt;, &lt;Callback&gt;)
+
+All arguments except 'Memberships' have the same meaning as with the 'Update' method (and 'Callback' has the same signature).
+
+'Memberships' is an object that can either contain the key 'Add' or 'Remove' (if it contains both, only 'Add' will be taken into account).
+
+The 'Add'/'Remove' property of the 'Memberships' object can be assigned either a string (representing a single group to add/remove) or an array of strings (representing multiple groups to add/remove). If multiple groups are selected, they are all added/removed in a single atomic operation along with the update.
+
+Ex1:
+
+```javascript
+//Some code
+
+//Using UpdateAtomic to ban a cheater and set his score to 0 in one atomic operation
+Store.UpdateAtomic({'Username': 'Cheater666'}, {'Score': 0}, {'Add': 'Banned'}, function(Err, Result) {
+    if(Err)
+    {
+        //Some error occured, handle it. Probably the database.
+    }
+    else if(Result==1)
+    {
+        //User was successfully updated
+    }
+    else if(Result==0)
+    {
+        //User was not successfully updated. Probably a wrong Username.
+    }
+
+});
+
+```
+
+Ex2:
+
+```javascript
+//Some code
+
+//Using UpdateAtomic to mark the departure of an employee with admin privileges
+Store.UpdateAtomic({'Name': 'Adrian'}, {'DepartureDate': Now}, {'Remove': ['Admin', 'Ops']}, function(Err, Result) {
+    if(Err)
+    {
+        //Some error occured, handle it. Probably the database.
+    }
+    else if(Result==1)
+    {
+        //User was successfully updated
+    }
+    else if(Result==0)
+    {
+        //User was not successfully updated. Probably a wrong Name.
+    }
+
+});
+
+```
+
 Version History
 ===============
+
+2.1.0
+-----
+
+Added UpdateAtomic method.
 
 2.0.4
 -----
