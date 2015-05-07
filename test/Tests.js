@@ -10,6 +10,17 @@ var UserProperties = require('user-properties');
 var Context = {};
 var RandomIdentifier = 'UserStoreTestDB'+Math.random().toString(36).slice(-8);
 
+function In()
+{
+    var InList = arguments[0];
+    var CheckList = Array.prototype.slice.call(arguments, 1);
+    return(CheckList.every(function(CheckItem) {
+        return(InList.some(function(RefItem) {
+            return RefItem===CheckItem;
+        }));
+    }));
+}
+
 exports.DefaultHash = {
     'Test': function(Test) {
         Test.expect(3);
@@ -241,7 +252,7 @@ exports.UserStore = {
         });
     },
     'TestMinimalistic': function(Test) {
-        Test.expect(20);
+        Test.expect(25);
         UserStore(Context['DB'], UserProperties(), function(Err, Store) {
             Context['DB'].collection('Users', function(Err, UsersCollection) {
                 Nimble.series([
@@ -377,6 +388,36 @@ exports.UserStore = {
                         Store.Count({'LastName': 'Fake'}, function(Err, Count) {
                             Test.ok(Count==2, "Confirming that count against criteria that match more than 1 user works.");
                             Callback();
+                        });
+                    });
+                },
+                function(Callback) {
+                    Store.Add({'FirstName': 'Anatoly', 'LastName': 'Baranoly', 'Email': 'Anatoly@fakemail.com', 'Username': 'Original'}, function(Err, Result) {
+                        Store.UpdateAtomic({'Email': 'Anatoly@fakemail.com'}, {'FirstName': 'Anatolium'}, null, function(Err, Result) {
+                            Store.Get({'Email': 'Anatoly@fakemail.com'}, function(Err, User) {
+                                Test.ok(User.FirstName==='Anatolium' && User.Memberships.length === 0, "Confirming UpdateAtomic without membership changes works.");
+                                Store.UpdateAtomic({'Email': 'Anatoly@fakemail.com'}, {'LastName': 'Baranolium'}, {'Add': 'Test1'}, function(Err, Result) {
+                                    Store.Get({'Email': 'Anatoly@fakemail.com'}, function(Err, User) {
+                                        Test.ok(User.LastName==='Baranolium' && User.Memberships.length === 1 && In(User.Memberships, 'Test1'), "Confirming UpdateAtomic works with adding a single group.");
+                                        Store.UpdateAtomic({'Email': 'Anatoly@fakemail.com'}, {'FirstName': 'Anatola', 'LastName': 'Baranola'}, {'Add': ['Test1', 'Test2', 'Test3']}, function(Err, Result) {
+                                            Store.Get({'Email': 'Anatoly@fakemail.com'}, function(Err, User) {
+                                                Test.ok(User.LastName==='Baranola' && User.FirstName==='Anatola' && User.Memberships.length === 3 && In(User.Memberships, 'Test1', 'Test2', 'Test3'), "Confirming UpdateAtomic can add multiple groups and preserves set uniqueness.");
+                                                Store.UpdateAtomic({'Email': 'Anatoly@fakemail.com'}, {'FirstName': 'Anatolu', 'LastName': 'Baranolu'}, {'Remove': 'Test3'}, function(Err, Result) {
+                                                    Store.Get({'Email': 'Anatoly@fakemail.com'}, function(Err, User) {
+                                                        Test.ok(User.LastName==='Baranolu' && User.FirstName==='Anatolu' && User.Memberships.length === 2 && In(User.Memberships, 'Test1', 'Test2'), "Confirming UpdateAtomic can remove a single group.");
+                                                        Store.UpdateAtomic({'Email': 'Anatoly@fakemail.com'}, {'FirstName': 'Anatolo', 'LastName': 'Baranolo'}, {'Remove': ['Test1', 'Test2', 'Test3']}, function(Err, Result) {
+                                                            Store.Get({'Email': 'Anatoly@fakemail.com'}, function(Err, User) {
+                                                                Test.ok(User.LastName==='Baranolo' && User.FirstName==='Anatolo' && User.Memberships.length === 0, "Confirming UpdateAtomic can remove multiple groups.");
+                                                                Callback();
+                                                            });
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
                         });
                     });
                 }], 
