@@ -622,8 +622,56 @@ Store.UpdateAtomic({'Name': 'Adrian'}, {'DepartureDate': Now}, {'Remove': ['Admi
 
 ```
 
+Promises Support
+================
+
+From version 2.2.0 onward, all calls to user-store methods will return a promise if a callback is not passed in the method's arguments.
+
+Calling the methods this way requires a standard compliant promise implementation to be accessible via a global Promise variable.
+
+I ran the tests for the library against the bluebird implementation of promises.
+
+Ex:
+
+```javascript
+global.Promise = require('bluebird');
+var Mongodb = require('mongodb');
+var UserStore = require('user-store');
+var UserProperties = require('user-properties');
+
+//Some code to define the User schema and store options, see constructor doc for details
+
+var Store = null;
+//Here, I will instanciate a store, create a new user, update his profile and count him
+MongoDB.MongoClient.connect("mongodb://localhost:27017/SomeDatabase", {native_parser:true}, function(Err, DB) {
+    UserStore(DB, UserSchema, StoreOptions).then(function(StoreInstance) {                      //Promise returning call
+        Store = StoreInstance;                                                                  //We need this, because we don't have the free closure we get with embedded callbacks
+        return Store.Add({'Username': 'Robert', 'Email': 'robert@fakemail.com', 'Age': 35});    //Promise returning call
+    }).then(function(Result) {
+        console.log(Result.length);    //logs 1
+        return Store.Update({'Username': 'Robert'}, {'Age': 25});                               //Promise returning call
+    }).then(function(Result) { 
+        console.log(Result);    //logs 1
+        return Store.Count({'Age': 25});                                                        //Promise returning call
+    }).then(function(Count) {
+        console.log(Result);    //logs 1
+        return Result;
+    }).catch(function(Err) {
+        console.log(Err);       //Some error that occured during one of the calls
+    });
+});
+
+```
+
 Version History
 ===============
+
+2.2.0
+-----
+
+- Added bluebird as a dev dependency
+- Added Promise support
+- Adjusted tests so they don't crash anymore with version 2.x.x of mongodb (though currently, 30/111 of tests fail with version 2.x.x of the driver so the library isn't 2.x.x compatible yet)
 
 2.1.0
 -----

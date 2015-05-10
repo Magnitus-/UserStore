@@ -1,6 +1,6 @@
 {
   "name": "user-store",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Store to authenticate usernames, emails, passwords and group memberships",
   "keywords": [
     "authentication",
@@ -27,9 +27,10 @@
     "user-properties": ">=2.0.0 <4.x.x"
   },
   "devDependencies": {
+    "bcrypt": "~0.8.0",
+    "bluebird": "^2.9.25",
     "nimble": "0.0.2",
-    "nodeunit": "~0.9.0",
-    "bcrypt": "~0.8.0"
+    "nodeunit": "~0.9.0"
   },
   "scripts": {
     "test": "./node_modules/nodeunit/bin/nodeunit test"

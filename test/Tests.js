@@ -1,6 +1,7 @@
 //Copyright (c) 2015 Eric Vallee <eric_vallee2003@yahoo.ca>
 //MIT License: https://raw.githubusercontent.com/Magnitus-/UserStore/master/License.txt
 
+global.Promise = require('bluebird');
 var MongoDB = require('mongodb');
 var UserStore = require('../lib/UserStore');
 var Bcrypt = require('bcrypt');
@@ -72,11 +73,11 @@ exports.EnsureDependencies = {
         Test.expect(4);
         Context['DependenciesOk'] = true;
         UserStore.prototype.UnitTests.EnsureDependencies.call(Context, null, function(Err) {
-            Context['DB'].collectionNames(Context['CollectionName'], {'namesOnly': true} ,function(Err, Collections) {
+            Context['DB'].listCollections({'name': Context['CollectionName']}).toArray(function(Err, Collections) {
                 Test.ok(Collections.length==0, "Confirming that no dependencies are created if dependencies as flagged as ok.");
                 Context['DependenciesOk'] = false;
                 UserStore.prototype.UnitTests.EnsureDependencies.call(Context, null, function(Err) {
-                    Context['DB'].collectionNames(Context['CollectionName'], {'namesOnly': true} ,function(Err, Collections) {
+                    Context['DB'].listCollections({'name': Context['CollectionName']}).toArray(function(Err, Collections) {
                         Test.ok(Collections.length==1, "Confirming that collection dependency is created if dependencies are flagged as not ok.");
                         Test.ok(Context['DependenciesOk'], "Confirming that creating dependencies flag dependencies as ok.");
                         Context['DependenciesOk'] = false;
@@ -568,6 +569,83 @@ exports.UserStore = {
                 });
             });
         }, StoreOptions);
+    },
+    'TestPromise': function(Test) {
+        function Done()
+        {
+            Test.done();
+        }
+        function LogError(Err)
+        {
+            console.log(Err);
+            return Err;
+        }
+        Test.expect(11);
+        var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}]};
+        var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
+                                         'FirstName': {'Required': true},
+                                         'Username': {'Unique': true}});
+        var Store = null;
+        var StoreCreation = UserStore(Context['DB'], UserSchema, StoreOptions);
+        
+        var ValidUserCreation = StoreCreation.then(function(StoreInstance) {
+            Store = StoreInstance;
+            Test.ok(Store, "Confirming that constructor with valid arguments works with promise API.");
+            return Store.Add({'FirstName': 'Promise', 'LastName': 'Promise', 'Email': 'Promise', 'Username': 'Promise'});
+        }, LogError);
+        
+        var InvalidUserCreation = ValidUserCreation.then(function(Result) {
+            Test.ok(Result && Result.length === 1 && Result[0].Username === 'Promise' && Result[0].Email === 'Promise', "Confirming that adding valid new user with promise API works fine.");
+            return Store.Add({'FirstName': 'Promise', 'LastName': 'Promise', 'Email': 'Promise', 'Username': 'Promise'});
+        }, LogError)
+        
+        var ValidUserUpdate = InvalidUserCreation.catch(function(Err) {
+            Test.ok(Err && Err.UserStore, "Confirming that adding invalid new user with promise API works fine");
+            return Store.Update({'Username': 'Promise'}, {'FirstName': 'Promised'});
+        })
+        
+        var InvalidUserUpdate = ValidUserUpdate.then(function(Result) {
+            Test.ok(Result===1, "Confirming that valid updates work with promise API.");
+            return Store.Update({'Username': 'Promise'}, {'FirstName': null});
+        }, LogError)
+        
+        
+        var UserGet = InvalidUserUpdate.catch(function(Err) {
+            Test.ok(Err && Err.UserStore, "Confirming that invalid updates with promise API works fine");
+            return Store.Get({'Username': 'Promise'});
+        });
+        
+        var UserRemove = UserGet.then(function(User) {
+            Test.ok(User && User.Username === 'Promise' && User.FirstName === 'Promised', "Confirming that getting a user works with promise API");
+            return Store.Remove({'Username': 'Promise'});
+        }, LogError)
+        
+        var AddMembership = UserRemove.then(function(Result) {
+            Test.ok(Result===1, "Confirming that deletion works with promise API.");
+            return Store.Add({'FirstName': 'Promise', 'LastName': 'Promise', 'Email': 'Promise', 'Username': 'Promise'});
+        }, LogError).then(function(Result) {
+            return Store.AddMembership({'FirstName': 'Promise'}, 'Test');
+        }, LogError);
+        
+        var RemoveMembership = AddMembership.then(function(Result) {
+            Test.ok(Result===1, "Confirming that adding memberships works with promise API");
+            return Store.RemoveMembership({'FirstName': 'Promise'}, 'Test');
+        }, LogError);
+        
+        var Count = RemoveMembership.then(function(Result) {
+            Test.ok(Result===1, "Confirming that removing memberships works with promise API");
+            return Store.Count({'FirstName': 'Promise'});
+        }, LogError);
+        
+        var UpdateAtomic = Count.then(function(Result) {
+            Test.ok(Result===1, "Confirming that count works with promise API");
+            return Store.UpdateAtomic({'FirstName': 'Promise'}, {'LastName': 'Promised'}, {'Add': 'Test'});
+        }, LogError);
+        
+        UpdateAtomic.then(function(Result) {
+            Test.ok(Result===1, "Confirming that UpdateAtomic works with promise API");
+            return true;
+        }, LogError).then(Done, Done);
     }
 };
 
@@ -603,7 +681,7 @@ if(process.env['USER'] && process.env['USER']==='root')
     
     exports.NonResponsiveHandling = {
         'setUp': function(Callback) {
-            MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {'db': {native_parser:true}, 'server': {'socketOptions': {'connectTimeoutMS': 50, 'socketTimeoutMS': 50}}}, function(Err, DB) {
+            MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {'db': {native_parser: true}, 'server': {'socketOptions': {'connectTimeoutMS': 50, 'socketTimeoutMS': 50}}}, function(Err, DB) {
                 Context['DB'] = DB;
                 Callback();
             });
