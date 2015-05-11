@@ -16,6 +16,16 @@ Requirements
 
 [1] Later versions should also work. If you find it not to be the case, let me know.
 
+mongodb Driver Support
+----------------------
+
+currently, both 1.4.x and 2.x.x versions of the mongodb project are supported: slight manipulations are done on the results of calls to the 2.x.x version to make them consistent with 1.4.x (which is ultimately better I find as the results from calls to 1.4.x are less database specific which makes this library more easily portable to another database).
+
+I personality would like to start using solely version 2.x.x of the driver for my projects as soon as possible, so with this in mind, version 1.4.x will be supported for this library as long as:
+
+- I can do so while still supporting the latest version of mongodb and not have to put version agnostic wrappers around driver calls
+- 1.4.x support doesn't limit features to this library
+
 Installation
 ============
 
@@ -665,6 +675,12 @@ MongoDB.MongoClient.connect("mongodb://localhost:27017/SomeDatabase", {native_pa
 
 Version History
 ===============
+
+2.3.0
+-----
+
+- Added support for version 2.x.x of mongodb
+- Changed the mongodb dependency to convey the range of supported versions.
 
 2.2.0
 -----
