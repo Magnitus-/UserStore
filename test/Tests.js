@@ -446,7 +446,7 @@ exports.UserStore = {
         });
     },
     'TestRestrictions': function(Test) {
-        Test.expect(16);
+        Test.expect(20);
         var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}]};
         var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
                                          'FirstName': {'Required': true},
@@ -505,14 +505,33 @@ exports.UserStore = {
                 },
                 function(Callback) {
                     Store.Update({'Email': 'Fake@email.com'}, {'Email': 'Fake2@email.com'}, function(Err, Result) {
-                        Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming null constraint works with Update, case 1.");
+                        Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works with Update, case 1.");
                         Store.Update({'Email': 'Fake@email.com'}, {'Username': 'Fake'}, function(Err, Result) {
-                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming null constraint works with Update, case 2.");
+                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works with Update, case 2.");
                             Store.Update({'Email': 'Fake2@email.com'}, {'FirstName': 'Fake2'}, function(Err, Result) {
-                                Test.ok(!Err, "Confirming null constraint works with Update, case 3.");
+                                Test.ok(!Err, "Confirming unique constraint works with Update, case 3.");
                                 Store.Update({'Email': 'Fake2@email.com'}, {'LastName': 'Fake2'}, function(Err, Result) {
-                                    Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming null constraint works with Update, case 4.");
+                                    Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming unique constraint works with Update, case 4.");
                                     Callback();
+                                });
+                            });
+                        });
+                    });
+                },
+                function(Callback) {
+                    Store.Add({'FirstName': 'UpdateGet', 'Email': 'UpdateGet@email.com', 'LastName': 'UpdateGet'}, function(Err, Result) {
+                        Store.Add({'FirstName': 'UpdateGet2', 'Email': 'UpdateGet2@email.com', 'LastName': 'UpdateGet2'}, function(Err, Result) {
+                            Store.UpdateGet({'FirstName': 'UpdateGet', 'Email': 'UpdateGet@email.com', 'LastName': 'UpdateGet'}, {'FirstName': 'UpdateGet2', 'Email': 'UpdateGet2@email.com', 'LastName': 'UpdateGet2'}, function(Err, Result) {
+                                Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming that unique constraint works with UpdateGet");
+                                Store.UpdateGet({'FirstName': 'UpdateGet', 'Email': 'UpdateGet@email.com', 'LastName': 'UpdateGet'}, {'FirstName': null, 'Email': null, 'LastName': null}, function(Err, Result) {
+                                    Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'NotNull', "Confirming that NotNull constraint works with UpdateGet");
+                                    Store.UpdateGetAtomic({'FirstName': 'UpdateGet', 'Email': 'UpdateGet@email.com', 'LastName': 'UpdateGet'}, {'FirstName': 'UpdateGet2', 'Email': 'UpdateGet2@email.com', 'LastName': 'UpdateGet2'}, {'Add': 'Sup'}, function(Err, Result) {
+                                        Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'Unique', "Confirming that unique constraint works with UpdateGetAtomic");
+                                        Store.UpdateGetAtomic({'FirstName': 'UpdateGet', 'Email': 'UpdateGet@email.com', 'LastName': 'UpdateGet'}, {'FirstName': null, 'Email': null, 'LastName': null}, {'Add': 'Sup'}, function(Err, Result) {
+                                            Test.ok(Err && Err.UserStore && Err.UserStore.Type == 'NotNull', "Confirming that NotNull constraint works with UpdateGetAtomic");
+                                            Callback();
+                                        });
+                                    });
                                 });
                             });
                         });

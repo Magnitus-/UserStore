@@ -699,6 +699,12 @@ MongoDB.MongoClient.connect("mongodb://localhost:27017/SomeDatabase", {native_pa
 Version History
 ===============
 
+2.4.1
+-----
+
+- Fixed a crash bug when violating Unique constraint with UpdateGet or UpdateGetAtomic.
+- Added tests for the above.
+
 2.4.0
 -----
 
