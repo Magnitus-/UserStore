@@ -253,7 +253,7 @@ exports.UserStore = {
         });
     },
     'TestMinimalistic': function(Test) {
-        Test.expect(25);
+        Test.expect(29);
         UserStore(Context['DB'], UserProperties(), function(Err, Store) {
             Context['DB'].collection('Users', function(Err, UsersCollection) {
                 Nimble.series([
@@ -416,6 +416,23 @@ exports.UserStore = {
                                                 });
                                             });
                                         });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                },
+                function(Callback) {
+                    Store.Add({'FirstName': 'Boromir', 'LastName': 'Boromir', 'Email': 'Boromir@fakemail.com', 'Username': 'Boromir'}, function(Err, Result) {
+                        Store.UpdateGet({'FirstName': 'Boromir'}, {'LastName': 'Boromiron'}, function(Err, User) {
+                            Test.ok(User.LastName==='Boromiron' && User.FirstName==='Boromir' && User.Memberships.length === 0, "Confirming UpdateGet updates and retrieves updated user.");
+                            Store.UpdateGet({'FirstName': 'Borom'}, {'LastName': 'Boromiron'}, function(Err, User) {
+                                Test.ok(User === null, "Confirming that calling UpdateGet for a non-existent user returns null.");
+                                Store.UpdateGetAtomic({'FirstName': 'Boromir'}, {'LastName': 'Boromirir'}, {'Add': 'Sup'}, function(Err, User) {
+                                    Test.ok(User.LastName && User.LastName === "Boromirir" && User.Memberships && User.Memberships.length === 1 && In(User.Memberships, 'Sup'), "Confirming that UpdateGetAtomic updates and retrieves updated user.");
+                                    Store.UpdateGetAtomic({'FirstName': 'Borin'}, {'LastName': 'Boromirir'}, {'Add': 'Sup'}, function(Err, User) {
+                                        Test.ok(User === null, "Confirming that calling UpdateGetAtomic for a non-existent user returns null.");
+                                        Callback();
                                     });
                                 });
                             });

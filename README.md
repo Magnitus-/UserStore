@@ -411,13 +411,13 @@ Store.Remove({'Email': 'SomeEmail@email.com'}, function(Err, Result) {
 Update
 ------
 
-Method to update one or more users. It has the following signature: function(&lt;User&gt;, &lt;Updates&gt;, &lt;Callback&gt;)
+Method to update one user. It has the following signature: function(&lt;User&gt;, &lt;Updates&gt;, &lt;Callback&gt;)
 
 &lt;User&gt; is an object that only needs to contain the right fields to identify the user(s) we want to update. If any hashable fields are defined, they will be hashed internally and used to authenticate the user.
 
 &lt;Updates&gt; is an object that only needs to contain the fields you want to update (if they don't exist, they will be created). If any hashable fields are present, they will be hashed internally before storage just like in user creation.
 
-&lt;Callback&gt; will have a callback as its first argument and the number of deleted users as its second.
+&lt;Callback&gt; will have a callback as its first argument and the number of updated users as its second.
 
 Ex:
 
@@ -632,6 +632,29 @@ Store.UpdateAtomic({'Name': 'Adrian'}, {'DepartureDate': Now}, {'Remove': ['Admi
 
 ```
 
+UpdateGet & UpdateGetAtomic
+---------------------------
+
+Behave simiarly to Update and UpdateAtomomic, but return the newly updated user (as an object) as the callback's second argument instead of the number of updated user (ie, 0 or 1).
+
+If no user is updated, null is returned as the callback's second argument instead.
+
+These methods perform the update and get atomically.
+
+Performance note: 
+
+For the version 1.4.x of the mongodb driver, these methods call 'findAndModify' on the collection which makes them significantly slower than calling the 'Update' or 'UpdateAtomic' method (which calls 'update' on the collection), followed by the 'Get' method ( which calls 'findOne' on the collection).
+
+So if atomicity of the Update and Get are not required, you'll get a better performance by calling them separately (ie, call to Update/UpdateAtomic followed by call to Get) rather than use UpdateGet/UpdateGetAtomic.
+
+For the version 2.x.x of the mongodb driver, the newly available (and much faster) 'findOneAndUpdate' is called on the collection instead, making this method slightly faster than separates Update & Get and atomic to boot (and thus, always preferable).
+
+So in short, if you need to update a user and get his info:
+
+- If you use version 1.4.x of the mongodb driver and don't need atomicity between the updating of a user's profile and its fetching, use Update or UpdateAtomic followed by Get.
+
+- If you need atomicity between the updating of a user's profile and its fetching or if you are using version 2.x.x of the mongodb driver, use UpdateGet/UpdateGetAtomic.
+
 Promises Support
 ================
 
@@ -675,6 +698,12 @@ MongoDB.MongoClient.connect("mongodb://localhost:27017/SomeDatabase", {native_pa
 
 Version History
 ===============
+
+2.4.0
+-----
+
+- Added UpdateGet and UpdateGetAtomic methods.
+- Corrected erronous information for the documentation of the 'Update' method.
 
 2.3.0
 -----
