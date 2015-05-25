@@ -699,6 +699,11 @@ MongoDB.MongoClient.connect("mongodb://localhost:27017/SomeDatabase", {native_pa
 Version History
 ===============
 
+2.4.2
+-----
+
+Fixed bug where unique constraint violations would not be reported for version 1.4.x of the mongodb driver due to the unique error format of the findAndModify method.
+
 2.4.1
 -----
 

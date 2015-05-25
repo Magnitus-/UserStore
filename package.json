@@ -1,6 +1,6 @@
 {
   "name": "user-store",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "Store to authenticate usernames, emails, passwords and group memberships",
   "keywords": [
     "authentication",
