@@ -698,16 +698,23 @@ if(process.env['USER'] && process.env['USER']==='root')
         });
     }
     
-    function TestSleep(Test, Callback)
+    function TestSleep(Callback)
     {
-        Test.expect(1);
         var UserSchema = UserProperties({'Email': {'Required': true, 'Unique': true},
                                          'FirstName': {'Required': true},
                                          'Username': {'Unique': true},
                                          'Password': {'Retrievable': false, 'Privacy': UserProperties.Privacy.Secret}});
         var StoreOptions = {'Indices': [{'Fields': {'FirstName': 1, 'LastName': 1}, 'Options': {'unique': true}}], 'HashOnly': ['Password']};
         UserStore(Context['DB'], UserSchema, function(Err, Store) {
+            if(Err)
+            {
+                console.log(Err);
+            }
             Store.Add({'Email': 'ma@ma.ma', 'FirstName': 'Fake', 'LastName': 'Fake', 'Username': 'Fake', 'Password': 'Qwerty!'}, function(Err, Result) {
+                if(Err)
+                {
+                    console.log(Err);
+                }
                 SleepMongoDB(Context['DB'], function() {
                     Callback(Store);
                 });
@@ -787,7 +794,8 @@ if(process.env['USER'] && process.env['USER']==='root')
             });
         },
         'Remove': function(Test) {
-            TestSleep(Test, function(Store) {
+            Test.expect(1);
+            TestSleep(function(Store) {
                 Store.Remove({'Email': 'ma@ma.ma'}, function(Err, Result) {
                     Test.ok(Err, "Confirming that Remove method handles socket timeout properly");
                     Test.done();
@@ -795,7 +803,8 @@ if(process.env['USER'] && process.env['USER']==='root')
             });
         },
         'Update': function(Test) {
-            TestSleep(Test, function(Store) {
+            Test.expect(1);
+            TestSleep(function(Store) {
                 Store.Update({'Email': 'ma@ma.ma'}, {'Username': 'Fake2'}, function(Err, Result) {
                     Test.ok(Err, "Confirming that Update method handles socket timeout properly");
                     Test.done();
@@ -803,7 +812,8 @@ if(process.env['USER'] && process.env['USER']==='root')
             });
         },
         'Get': function(Test) {
-            TestSleep(Test, function(Store) {
+            Test.expect(1);
+            TestSleep(function(Store) {
                 Store.Get({'Email': 'ma@ma.ma'}, function(Err, Result) {
                     Test.ok(Err, "Confirming that Get method handles socket timeout properly");
                     Test.done();
@@ -811,7 +821,8 @@ if(process.env['USER'] && process.env['USER']==='root')
             });
         },
         'AddMembership': function(Test) {
-            TestSleep(Test, function(Store) {
+            Test.expect(1);
+            TestSleep(function(Store) {
                 Store.AddMembership({'Email': 'ma@ma.ma'}, 'Ah!', function(Err, Result) {
                     Test.ok(Err, "Confirming that AddMembership method handles socket timeout properly");
                     Test.done();
@@ -819,7 +830,8 @@ if(process.env['USER'] && process.env['USER']==='root')
             });
         },
         'RemoveMembership': function(Test) {
-            TestSleep(Test, function(Store) {
+            Test.expect(1);
+            TestSleep(function(Store) {
                 Store.RemoveMembership({'Email': 'ma@ma.ma'}, 'Ah!', function(Err, Result) {
                     Test.ok(Err, "Confirming that AddMembership method handles socket timeout properly");
                     Test.done();
@@ -827,7 +839,8 @@ if(process.env['USER'] && process.env['USER']==='root')
             });
         },
         'Count': function(Test) {
-            TestSleep(Test, function(Store) {
+            Test.expect(1);
+            TestSleep(function(Store) {
                 Store.Count({'Email': 'ma@ma.ma'}, function(Err, Result) {
                     Test.ok(Err, "Confirming that Count method handles socket timeout properly");
                     Test.done();

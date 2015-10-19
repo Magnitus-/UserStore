@@ -699,6 +699,12 @@ MongoDB.MongoClient.connect("mongodb://localhost:27017/SomeDatabase", {native_pa
 Version History
 ===============
 
+2.4.3 (in progress)
+-----
+
+- Fixed another case of constrain violations not being reported for version 1.4.x of the mongodb driver
+- Fixed setup of non-responsive tests not working properly for version 2.x.x of the mongodb driver (in progress)
+
 2.4.2
 -----
 
