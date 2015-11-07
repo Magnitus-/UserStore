@@ -724,7 +724,11 @@ if(process.env['USER'] && process.env['USER']==='root')
     
     exports.NonResponsiveHandling = {
         'setUp': function(Callback) {
-            MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {'db': {native_parser: true}, 'server': {'socketOptions': {'connectTimeoutMS': 50, 'socketTimeoutMS': 50}}}, function(Err, DB) {
+            MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {'db': {native_parser: true, 'wtimeout': 30, 'w': 1}, 'server': {'socketOptions': {'connectTimeoutMS': 500, 'socketTimeoutMS': 500}}}, function(Err, DB) {
+                if(Err)
+                {
+                    console.log(Err);
+                }
                 Context['DB'] = DB;
                 Callback();
             });
@@ -733,19 +737,29 @@ if(process.env['USER'] && process.env['USER']==='root')
             if(Context.PID)
             {
                 process.kill(Context.PID, 'SIGCONT');
-                Context.DB.close();
-                //Setting socketTimeoutMS > 0 is not recommended in production without addtional re-connection logic as it will close the connection when it times out and will also trigger closure if it is iddle (ie, not making any requests) for the given duration
-                //It works well for these tests as there isn't much of a delay between requests or a need to make additional requests with the same DB handle after failure
-                MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {'server': {'socketOptions': {'connectTimeoutMS': 50, 'socketTimeoutMS': 50}}}, function(Err, DB) {
-                    DB.dropDatabase(function(Err, Result) {
+                Context.DB.close(function(Err) {
+                    if(Err)
+                    {
+                        console.log(Err);
+                    }
+                    //Setting socketTimeoutMS > 0 is not recommended in production without addtional re-connection logic as it will close the connection when it times out and will also trigger closure if it is iddle (ie, not making any requests) for the given duration
+                    //It works well for these tests as there isn't much of a delay between requests or a need to make additional requests with the same DB handle after failure
+                    MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {'server': {'socketOptions': {'connectTimeoutMS': 500, 'socketTimeoutMS': 500}}}, function(Err, DB) {
                         if(Err)
                         {
                             console.log(Err);
                         }
-                        DB.close();
-                        Context['DB'] = null;
-                        Context['PID'] = null
-                        Callback();
+                        DB.dropDatabase(function(Err, Result) {
+                            if(Err)
+                            {
+                                console.log(Err);
+                            }
+                            DB.close(function(Err) {
+                                Context['DB'] = null;
+                                Context['PID'] = null
+                                Callback();
+                            });
+                        });
                     });
                 });
             }
@@ -848,23 +862,9 @@ if(process.env['USER'] && process.env['USER']==='root')
             });
         }
     };
-    
-    /*MongoDB.MongoClient.connect("mongodb://localhost:27017/"+RandomIdentifier, {'server': {'socketOptions': {'connectTimeoutMS': 50, 'socketTimeoutMS': 50}}}, function(Err, DB) {
-        DB.command({'buildInfo': 1}, function(Err, Result) {
-            var VersionArray = Result.versionArray;
-            DB.dropDatabase(function(Err, Result) {
-                DB.close();
-                if(VersionArray[0]>2 || (VersionArray[0]===2 && VersionArray[1]>=6))
-                {
-                    
-                }
-            });
-        });
-    });*/
 }
 
 process.on('uncaughtException', function(MainErr) {
-    console.log('eh');
     if(Context.DB)
     {
         Context.DB.dropDatabase(function(Err, Result) {
