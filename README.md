@@ -8,13 +8,11 @@ It has barebone optional built-in facilities to handle roles and hashing.
 Requirements
 ============
 
-- A recent version of MongoDB (version 2.4.9 is installed on my machine) [1]
+- A recent version of MongoDB (initially developped on 2.49, now developped on 3.07)
 
-- A recent version of Node.js (version 0.10.25 is installed on my machine) [1]
+- node.js 0.1x or later
 
 - npm if you want the easy way to install this module.
-
-[1] Later versions should also work. If you find it not to be the case, let me know.
 
 mongodb Driver Support
 ----------------------
@@ -699,11 +697,11 @@ MongoDB.MongoClient.connect("mongodb://localhost:27017/SomeDatabase", {native_pa
 Version History
 ===============
 
-2.4.3 (in progress)
+2.4.3
 -----
 
 - Fixed another case of constrain violations not being reported for version 1.4.x of the mongodb driver
-- Fixed setup of non-responsive tests not working properly for version 2.x.x of the mongodb driver (in progress)
+- Fixed setup of non-responsive tests not working properly for version 2.x.x of the mongodb driver
 
 2.4.2
 -----
